@@ -1,0 +1,5 @@
+{
+  "name": "AI Mindshare Grid",
+  "description": "A dynamic, Million-Dollar-Homepage style visualization of real-time AI company popularity and search trends using Gemini Grounding.",
+  "requestFramePermissions": []
+}
