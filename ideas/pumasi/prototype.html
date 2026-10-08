@@ -1,4 +1,4 @@
-<title>품앗이 원장</title>
+<title>오고가고</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Sans+KR:wght@400;500;700&family=Nanum+Pen+Script&display=swap">
 <style>
@@ -78,7 +78,7 @@ input.inline{font:inherit;padding:6px 8px;border:1px solid var(--rule);border-ra
 
 <div class="wrap">
   <header>
-    <h1>품앗이 원장 <small>체험판</small></h1>
+    <h1>오고가고 <small>오고 가는 정, 잊지 않게 · 체험판</small></h1>
     <p class="lede">방명록·부의금 봉투 사진을 올리면 장부가 됩니다. 상주(혼주)별로 나누고, 답례 문자를 만들고, 다음에 그분 경조사가 오면 "갚을 차례"를 알려 드립니다.</p>
   </header>
 
@@ -94,7 +94,7 @@ input.inline{font:inherit;padding:6px 8px;border:1px solid var(--rule);border-ra
     <div class="thumbs" id="thumbs"></div>
     <div class="paywall" id="paywall" hidden>
       <div class="preview" id="previewBox" hidden></div>
-      <h3>나머지는 품앗이 플러스로 한 번에</h3>
+      <h3>나머지는 오고가고 플러스로 한 번에</h3>
       <div class="price">연 9,900원 <small>· 월 825원꼴 · 행사 몇 번이든 무제한</small></div>
       <ul>
         <li>방명록·봉투·장부 사진 인식 무제한</li>
@@ -331,7 +331,7 @@ input.inline{font:inherit;padding:6px 8px;border:1px solid var(--rule);border-ra
     const hs = hosts();
     const lines = [["이름","소속·관계","금액","누구 손님"].join(",")].concat(rows.map(r=>[r.name,r.group,r.amount,(r.host>=0&&hs[r.host])?hs[r.host]:"공동"].map(v=>`"${String(v??"").replace(/"/g,'""')}"`).join(",")));
     const csv = "﻿"+lines.join("\n");
-    try{ const dl = await claude.use("downloads"); if(dl){ await dl.save({filename:`품앗이원장_${$("eventType").value}.csv`, data:new Blob([csv],{type:"text/csv"})}); return; } }catch(e){ if(e && e.code==="cancelled") return; }
+    try{ const dl = await claude.use("downloads"); if(dl){ await dl.save({filename:`오고가고_${$("eventType").value}.csv`, data:new Blob([csv],{type:"text/csv"})}); return; } }catch(e){ if(e && e.code==="cancelled") return; }
     status("이 화면에서는 파일 저장을 쓸 수 없습니다. claude.ai에서 열어 주세요.", true);
   }
 
