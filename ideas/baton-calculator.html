@@ -1,0 +1,170 @@
+<title>바톤 학원 가치 진단</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=IBM+Plex+Sans+KR:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: 출석부/수납장부처럼 좌측 입력 장부 + 우측 진단 결과지, 좁으면 위아래로 */
+:root{
+  --paper:#f6f7f2; --sheet:#ffffff; --ink:#1d2622; --muted:#5f6b65; --rule:#d9ded6;
+  --board:#22463a; --chalk:#e8c547; --good:#2f7a4f; --warn:#b4632a; --bad:#b03a3a;
+  --display:"Do Hyeon","IBM Plex Sans KR",sans-serif;
+  --body:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#121815; --sheet:#1a221e; --ink:#e6ebe7; --muted:#9aa8a1; --rule:#2c3832;
+  --board:#2f5e4e; --chalk:#e8c547; --good:#5cbf86; --warn:#e09a5e; --bad:#e07a7a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#121815; --sheet:#1a221e; --ink:#e6ebe7; --muted:#9aa8a1; --rule:#2c3832;
+  --board:#2f5e4e; --chalk:#e8c547; --good:#5cbf86; --warn:#e09a5e; --bad:#e07a7a; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.6}
+.wrap{max-width:1080px;margin:0 auto;padding-inline:16px;padding-block:28px 48px}
+header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:20px}
+h1{font-family:var(--display);font-weight:400;font-size:2.1rem;margin:0;line-height:1.1;text-wrap:balance}
+h1 span{background:linear-gradient(transparent 62%,color-mix(in srgb,var(--chalk) 60%,transparent) 62%)}
+.lede{color:var(--muted);margin:6px 0 0;max-width:60ch}
+.tag{font-size:12px;letter-spacing:.06em;color:var(--muted);border:1px solid var(--rule);padding:3px 8px;border-radius:4px}
+.grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:820px){.grid{grid-template-columns:1fr}}
+.ledger{background:var(--sheet);border:1px solid var(--rule);border-radius:6px}
+.ledger h2,.result h2{font-size:12px;letter-spacing:.08em;font-weight:600;color:var(--muted);margin:0;padding:14px 18px;border-bottom:1px solid var(--rule)}
+.row{display:grid;grid-template-columns:minmax(0,1fr) 150px;gap:12px;align-items:center;padding:10px 18px;border-bottom:1px dashed var(--rule)}
+.row:last-child{border-bottom:0}
+.row label{font-weight:500}
+.row small{display:block;color:var(--muted);font-size:12px;font-weight:400}
+input,select{width:100%;font:inherit;font-family:var(--mono);font-size:14px;color:var(--ink);background:var(--paper);border:1px solid var(--rule);border-radius:4px;padding:7px 9px;text-align:right}
+select{font-family:var(--body);text-align:left}
+input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid var(--chalk);outline-offset:1px}
+.unit{position:relative}.unit input{padding-right:34px}
+.unit::after{content:attr(data-unit);position:absolute;right:9px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--muted);pointer-events:none}
+.result{background:var(--board);color:#f2f4ef;border-radius:6px;position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px)}
+.result h2{color:color-mix(in srgb,#f2f4ef 70%,transparent);border-color:rgba(255,255,255,.14)}
+.hero{padding:20px 18px 6px}
+.hero .lbl{font-size:13px;opacity:.8}
+.big{font-family:var(--display);font-size:2.6rem;line-height:1.15;color:var(--chalk);font-variant-numeric:tabular-nums}
+.big small{font-size:1.1rem;color:#f2f4ef;opacity:.85}
+.facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:rgba(255,255,255,.14);margin:14px 18px;border-radius:4px;overflow:hidden}
+.facts div{background:var(--board);padding:10px}
+.facts b{display:block;font-family:var(--mono);font-size:15px;font-variant-numeric:tabular-nums}
+.facts span{font-size:11px;opacity:.75}
+.adj{list-style:none;margin:0;padding:0 18px 8px}
+.adj li{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.1);font-size:13.5px}
+.adj li:last-child{border:0}
+.adj em{font-style:normal;font-family:var(--mono);white-space:nowrap}
+.pos{color:#9fe0b5}.neg{color:#f2a7a0}.zero{opacity:.6}
+.tip{margin:6px 18px 18px;background:rgba(0,0,0,.18);border-left:3px solid var(--chalk);padding:10px 12px;font-size:13.5px;border-radius:0 4px 4px 0}
+.tip b{color:var(--chalk)}
+.warnbox{margin:0 18px 18px;font-size:13px;color:#f2a7a0}
+.note{margin-top:20px;color:var(--muted);font-size:12.5px;max-width:75ch}
+.note b{color:var(--ink)}
+button.reset{font:inherit;font-size:13px;background:transparent;color:var(--muted);border:1px solid var(--rule);border-radius:4px;padding:5px 10px;cursor:pointer}
+button.reset:hover{color:var(--ink)}
+@media (max-width:420px){.row{grid-template-columns:1fr}.big{font-size:2.1rem}}
+@media (prefers-reduced-motion:no-preference){.big{transition:color .2s}}
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <span class="tag">바톤 · 학원 양도양수 프로토타입</span>
+      <h1 style="margin-top:10px">우리 학원, <span>권리금</span>은 얼마일까</h1>
+      <p class="lede">한 달 장부를 넣으면 월 순수익과 학원 고유의 가치 요인으로 예상 권리금 범위를 계산합니다. 아래는 예시 학원 값입니다. 우리 학원 숫자로 바꿔 보세요.</p>
+    </div>
+    <button class="reset" id="reset" type="button">예시 값으로 되돌리기</button>
+  </header>
+
+  <div class="grid">
+    <form class="ledger" id="f" autocomplete="off">
+      <h2>월 장부</h2>
+      <div class="row"><label for="students">재원생 수<small>최근 3개월 평균</small></label><div class="unit" data-unit="명"><input id="students" type="number" min="0" inputmode="numeric"></div></div>
+      <div class="row"><label for="fee">1인 월 수강료<small>교재비 제외 평균</small></label><div class="unit" data-unit="만원"><input id="fee" type="number" min="0" step="0.5" inputmode="decimal"></div></div>
+      <div class="row"><label for="rent">월 임대료 + 관리비</label><div class="unit" data-unit="만원"><input id="rent" type="number" min="0" inputmode="decimal"></div></div>
+      <div class="row"><label for="staff">강사·직원 인건비<small>원장 본인 급여 제외</small></label><div class="unit" data-unit="만원"><input id="staff" type="number" min="0" inputmode="decimal"></div></div>
+      <div class="row"><label for="etc">기타 운영비<small>차량, 광고, 교재, 공과금</small></label><div class="unit" data-unit="만원"><input id="etc" type="number" min="0" inputmode="decimal"></div></div>
+
+      <h2>가치 요인</h2>
+      <div class="row"><label for="dep">원장 의존도<small>원장이 직접 맡는 수업 비중</small></label>
+        <select id="dep"><option value="high">높음 (절반 이상)</option><option value="mid">보통</option><option value="low">낮음 (강사 체계)</option></select></div>
+      <div class="row"><label for="tenure">평균 재원 기간</label><div class="unit" data-unit="개월"><input id="tenure" type="number" min="0" inputmode="numeric"></div></div>
+      <div class="row"><label for="lease">임대차 남은 기간</label><div class="unit" data-unit="개월"><input id="lease" type="number" min="0" inputmode="numeric"></div></div>
+      <div class="row"><label for="years">운영 연수</label><div class="unit" data-unit="년"><input id="years" type="number" min="0" step="0.5" inputmode="decimal"></div></div>
+      <div class="row"><label for="facility">시설·집기 잔존가치<small>감가 후 금액</small></label><div class="unit" data-unit="만원"><input id="facility" type="number" min="0" inputmode="decimal"></div></div>
+    </form>
+
+    <section class="result" aria-live="polite">
+      <h2>진단 결과지</h2>
+      <div class="hero">
+        <div class="lbl">예상 권리금 범위</div>
+        <div class="big" id="range">-</div>
+      </div>
+      <div class="facts">
+        <div><b id="rev">-</b><span>월 매출</span></div>
+        <div><b id="profit">-</b><span>월 순수익</span></div>
+        <div><b id="mult">-</b><span>적용 배수</span></div>
+      </div>
+      <ul class="adj" id="adj"></ul>
+      <p class="warnbox" id="warn" hidden></p>
+      <div class="tip" id="tip"></div>
+    </section>
+  </div>
+
+  <p class="note"><b>계산 방식.</b> 영업 권리금 = 월 순수익 × 배수(기본 8개월, 아래 요인으로 2~16개월 사이 보정) + 시설 잔존가치. 범위는 ±20%입니다. 배수와 보정값은 실거래 데이터로 보정하기 전의 <b>초기 가정</b>이며, 이 결과는 감정평가나 세무상 영업권 평가가 아닙니다.</p>
+</div>
+
+<script>
+const EX={students:62,fee:32,rent:280,staff:620,etc:190,dep:"mid",tenure:14,lease:20,years:6,facility:1200};
+const ids=Object.keys(EX);
+const $=id=>document.getElementById(id);
+const won=m=>{ // 만원 → 표기
+  const v=Math.round(m);
+  if(Math.abs(v)>=10000){const e=v/10000;return (Math.round(e*10)/10).toLocaleString("ko-KR")+"억";}
+  return v.toLocaleString("ko-KR")+"만";
+};
+function load(){
+  let saved=null;try{saved=JSON.parse(localStorage.getItem("baton-calc")||"null")}catch(e){}
+  const src=saved||EX;ids.forEach(k=>{$(k).value=src[k]??EX[k]});
+}
+function save(v){try{localStorage.setItem("baton-calc",JSON.stringify(v))}catch(e){}}
+function read(){const v={};ids.forEach(k=>{v[k]=k==="dep"?$(k).value:Math.max(0,parseFloat($(k).value)||0)});return v}
+
+function factors(v){
+  const f=[];
+  f.push({name:"원장 의존도",d:{high:-3,mid:-1,low:1}[v.dep],
+    fix:"원장 담당 수업을 강사에게 나눠 맡기면 인수자가 원생 이탈을 덜 걱정합니다."});
+  const t=v.tenure;
+  f.push({name:"평균 재원 기간",d:t>=18?2:t>=12?1:t>=6?0:-2,
+    fix:"재원 기간이 길수록 원생이 남을 가능성이 높게 평가됩니다. 학년 연계 과정이 효과적입니다."});
+  const l=v.lease;
+  f.push({name:"임대차 남은 기간",d:l<12?-2:l>=24?1:0,
+    fix:"양도 전에 임대차 갱신 조건을 먼저 확보하면 인수자의 불안이 크게 줄어듭니다."});
+  const y=v.years;
+  f.push({name:"운영 연수",d:y<1?-2:y>=5?1:0,
+    fix:"운영 1년 미만은 매출 지속성을 증명하기 어렵습니다. 최소 1년치 수납 기록을 쌓아 두세요."});
+  return f;
+}
+function render(){
+  const v=read();save(v);
+  const rev=v.students*v.fee, profit=rev-v.rent-v.staff-v.etc;
+  const f=factors(v);
+  const mult=Math.min(16,Math.max(2,8+f.reduce((s,x)=>s+x.d,0)));
+  $("rev").textContent=won(rev);$("profit").textContent=won(profit);$("mult").textContent=mult+"개월";
+  const warn=$("warn");
+  if(profit<=0){
+    $("range").innerHTML=won(v.facility)+"<small> 시설가치만</small>";
+    warn.hidden=false;warn.textContent="월 순수익이 0 이하라 영업 권리금이 잡히지 않습니다. 시설·집기 가치만 남는 상태입니다.";
+  }else{
+    warn.hidden=true;
+    const base=profit*mult+v.facility;
+    $("range").innerHTML=won(base*0.8)+" ~ "+won(base*1.2)+"<small> 원</small>";
+  }
+  $("adj").innerHTML="<li><span>기본 배수</span><em class='zero'>8개월</em></li>"+
+    f.map(x=>`<li><span>${x.name}</span><em class="${x.d>0?"pos":x.d<0?"neg":"zero"}">${x.d>0?"+":""}${x.d}개월</em></li>`).join("");
+  const worst=f.slice().sort((a,b)=>a.d-b.d)[0];
+  $("tip").innerHTML=worst.d<0
+    ? `<b>가치를 가장 깎는 요인: ${worst.name}</b><br>${worst.fix} 이 요인만 보정해도 약 ${won(Math.max(profit,0)*-worst.d)}원이 오릅니다.`
+    : `<b>약점이 크지 않은 학원입니다.</b><br>양도 시점에 3개월치 수납 기록과 원생 재원 기간 자료를 준비하면 협상에서 유리합니다.`;
+}
+$("f").addEventListener("input",render);
+$("reset").addEventListener("click",()=>{ids.forEach(k=>$(k).value=EX[k]);render()});
+load();render();
+</script>
