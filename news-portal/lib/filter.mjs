@@ -84,9 +84,12 @@ export function blockReason(article, { excludeTerms = [] } = {}) {
   }
 
   const econ = countHits(text, ECONOMY_SIGNALS) + countHits(text, BUSINESS_SIGNALS);
+  // 정책 기사("대통령, 저출생 대책 발표")는 사회 신호도 정치 약신호를 상쇄한다.
+  const society = countHits(text, SOCIETY_SIGNALS);
   for (const [topic, terms] of Object.entries(WEAK_TERMS)) {
     const weak = countHits(text, terms) + countHits(article.summary ?? '', STRONG_TERMS[topic]) * 2;
-    if (weak > 0 && weak > econ) return { topic, term: terms.find((t) => text.includes(t)) ?? 'summary' };
+    const offset = econ + (topic === 'politics' ? society : 0);
+    if (weak > 0 && weak > offset) return { topic, term: terms.find((t) => text.includes(t)) ?? 'summary' };
   }
   return null;
 }

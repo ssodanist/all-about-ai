@@ -40,6 +40,11 @@ test('경제 신호가 강하면 약한 차단어가 있어도 통과한다', ()
   assert.equal(blockReason(a('세법 개정으로 배당소득 과세 바뀐다', '국회 통과 후 주주 배당 세금이 줄어든다')), null);
 });
 
+test('대통령이 언급돼도 사회 정책 기사는 통과한다', () => {
+  assert.equal(blockReason(a('돌봄·근로시간 걱정에… 대통령, 인구 대책 언급')), null);
+  assert.equal(blockReason(a('대통령 지지율 하락'))?.topic, 'politics');
+});
+
 test('사용자 제외어로 차단한다', () => {
   assert.deepEqual(blockReason(a('비트코인 급등'), { excludeTerms: ['비트코인'] }), { topic: 'custom', term: '비트코인' });
 });
