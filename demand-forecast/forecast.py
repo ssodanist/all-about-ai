@@ -117,8 +117,9 @@ def build_panel(sales: pd.DataFrame):
     promo = piv("promo") > 0
     first = sales.groupby(["store", "sku"])["date"].min().reindex(idx).to_numpy()
     Y[dates.values[None, :] < first[:, None]] = np.nan   # 취급 시작 전은 결측
+    observed = Y.copy()                # 화면 표시용 (결품일 판매량 포함)
     Y[stockout] = np.nan               # 결품일 판매량은 실제 수요보다 작다 → 결측 처리
-    return keys, dates, Y, promo
+    return keys, dates, Y, promo, observed, stockout
 
 
 # ----------------------------------------------------------------------------
@@ -274,7 +275,7 @@ def abc_class(keys, Y, master, days=91):
 # ----------------------------------------------------------------------------
 def run(data_dir, out_dir, cfg: Config):
     sales, master, inventory, promo_plan, holidays = load_inputs(data_dir, cfg)
-    keys, dates, Y, promo = build_panel(sales)
+    keys, dates, Y, promo, observed, stockout = build_panel(sales)
     S, T = Y.shape
     sku_codes = keys["sku"].to_numpy(); store_codes = keys["store"].to_numpy()
     m = master.reindex(sku_codes)
@@ -387,6 +388,10 @@ def run(data_dir, out_dir, cfg: Config):
 
     from report import write_excel
     write_excel(out / "수요예측_발주추천.xlsx", plan, daily, future, accuracy, effects, holidays, dates, cfg, H, MODEL_DESC)
+    from report_html import build_payload, write_html
+    payload = build_payload(plan, F, observed, stockout, dates, future, holidays, accuracy, effects, cfg, H, MODEL_DESC,
+                            sample="sample" in Path(data_dir).name)
+    write_html(out / "dashboard.html", payload)
 
     tot_act = accuracy["actual"].sum()
     if tot_act > 0:

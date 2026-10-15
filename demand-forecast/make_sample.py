@@ -101,7 +101,8 @@ def main():
 
     recent = sales[pd.to_datetime(sales["date"]) > dates[-28]].groupby(["store", "sku"])["qty"].sum() / 28
     inv = recent.reset_index(name="avg")
-    inv["on_hand"] = np.floor(inv["avg"] * rng.uniform(0.5, 4, len(inv))).astype(int)
+    lead = inv["sku"].map({s[0]: s[5] for s in SKUS})          # 보통 리드타임 + 여유 1~2일치를 보유
+    inv["on_hand"] = np.floor(inv["avg"] * (lead + rng.uniform(-0.6, 2.5, len(inv)))).clip(0).astype(int)
     inv["on_order"] = np.where(rng.random(len(inv)) < 0.3, np.ceil(inv["avg"] * 2), 0).astype(int)
     inv[["store", "sku", "on_hand", "on_order"]].to_csv(out / "inventory.csv", index=False)
 
