@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>경제·사회 뉴스</title>
+  <meta name="description" content="정치·연예·스포츠 없이 경제·경영·사회 뉴스만 검색하는 포털" />
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <header class="top">
+    <div class="wrap top-inner">
+      <a class="brand" href="/">
+        <span class="brand-mark" aria-hidden="true">₩</span>
+        <span>
+          <strong>이슈만</strong>
+          <small>경제 · 경영 · 사회 뉴스</small>
+        </span>
+      </a>
+      <form id="search" class="search" role="search">
+        <input id="q" name="q" type="search" placeholder="금리, 반도체, 저출생…" autocomplete="off" aria-label="뉴스 검색" />
+        <button type="submit">검색</button>
+      </form>
+    </div>
+    <nav class="wrap tabs" aria-label="분류">
+      <button data-cat="all" class="active">전체</button>
+      <button data-cat="economy">경제 <span data-count="economy"></span></button>
+      <button data-cat="business">경영·기업 <span data-count="business"></span></button>
+      <button data-cat="society">사회 <span data-count="society"></span></button>
+    </nav>
+  </header>
+
+  <main class="wrap layout">
+    <section aria-live="polite">
+      <div id="notice" class="notice" hidden></div>
+      <p id="status" class="status">불러오는 중…</p>
+      <ol id="list" class="list"></ol>
+    </section>
+
+    <aside class="side">
+      <div class="panel">
+        <h2>걸러낸 기사</h2>
+        <p class="muted">정치 · 연예 · 스포츠 기사는 보여주지 않습니다.</p>
+        <ul id="blocked-counts" class="chips"></ul>
+        <details>
+          <summary>걸러낸 목록 보기</summary>
+          <ul id="blocked-list" class="blocked-list"></ul>
+        </details>
+      </div>
+
+      <div class="panel">
+        <h2>나만의 제외어</h2>
+        <p class="muted">이 단어가 들어간 기사도 숨깁니다.</p>
+        <form id="exclude-form" class="exclude-form">
+          <input id="exclude-input" placeholder="예: 코인" aria-label="제외어 추가" />
+          <button type="submit">추가</button>
+        </form>
+        <ul id="exclude-list" class="chips removable"></ul>
+      </div>
+    </aside>
+  </main>
+
+  <footer class="wrap foot muted">
+    기사 저작권은 각 언론사에 있습니다. 제목을 누르면 원문으로 이동합니다.
+  </footer>
+
+  <script type="module" src="/app.js"></script>
+</body>
+</html>

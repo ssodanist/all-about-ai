@@ -1,0 +1,12 @@
+{
+  "name": "issue-only-news-portal",
+  "private": true,
+  "version": "0.1.0",
+  "description": "정치·연예·스포츠 없이 경제·경영·사회 뉴스만 보여주는 검색 포털",
+  "type": "module",
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node --test test/*.test.mjs"
+  }
+}
